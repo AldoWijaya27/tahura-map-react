@@ -67,7 +67,7 @@ const MapView = forwardRef(function MapView(
 
     const esriImagery = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { attribution: 'Tiles © Esri', maxZoom: 17 }
+      { attribution: 'Tiles © Esri', maxZoom: 18 }
     ).addTo(map);
 
     L.control
