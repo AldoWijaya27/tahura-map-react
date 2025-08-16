@@ -51,7 +51,7 @@ const MapView = forwardRef(function MapView(
     const base = L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
-        maxZoom: 19,
+        maxZoom: 17,
         attribution: '&copy; OpenStreetMap contributors',
       }
     ).addTo(map);
@@ -65,7 +65,14 @@ const MapView = forwardRef(function MapView(
       }
     ).addTo(map);
 
-    L.control.layers({ OSM: base, Topografi: topo }).addTo(map);
+    const esriImagery = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { attribution: 'Tiles © Esri', maxZoom: 17 }
+    ).addTo(map);
+
+    L.control
+      .layers({ OSM: base, Topografi: topo, Esri: esriImagery })
+      .addTo(map);
 
     const group = L.featureGroup().addTo(map);
     groupRef.current = group;
