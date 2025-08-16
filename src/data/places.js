@@ -16,6 +16,7 @@ export const PLACES = [
     desc: 'Area penangkaran rusa — edukasi satwa & konservasi.',
     mediaType: 'video',
     mediaUrl: 'https://www.youtube.com/embed/ysz5S6PUM-U',
+    panoramaUrl: 'https://pannellum.org/images/cerro-toco-0.jpg',
   },
 
   {
@@ -26,6 +27,7 @@ export const PLACES = [
     desc: 'Air terjun indah dengan panorama alam yang menakjubkan.',
     mediaType: 'video',
     mediaUrl: 'https://www.youtube.com/embed/DWRcNpR6Kdc',
+    panoramaUrl: 'https://pannellum.org/images/bma-1.jpg',
   },
   {
     id: 'air-terjun-talang-rabun',

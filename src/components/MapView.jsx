@@ -3,8 +3,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-ant-path';
 import { PLACES } from '../data/places.js';
+import 'pannellum/build/pannellum.js';
+import 'pannellum/build/pannellum.css';
 
-// Fix default icon paths in bundlers (use CDN)
 const DefaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl:
@@ -17,7 +18,10 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-function createPopupHTML(p) {
+function createPopupHTML(p, idx) {
+  if (p.panoramaUrl) {
+    return `<div style="width:320px;height:200px" id="pano-${idx}"></div>`;
+  }
   const media =
     p.mediaType === 'video'
       ? `<div style="width:280px;max-width:80vw"><iframe src="${p.mediaUrl}" allowfullscreen loading="lazy" style="width:100%;border:0;border-radius:12px;aspect-ratio:16/9"></iframe></div>`
@@ -48,30 +52,59 @@ const MapView = forwardRef(function MapView(
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    const base = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    // const base = L.tileLayer(
+    //   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    //   {
+    //     maxZoom: 17,
+    //   }
+    // ).addTo(map);
+
+    // const topo = L.tileLayer(
+    //   'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    //   {
+    //     maxZoom: 17,
+    //   }
+    // ).addTo(map);
+
+    // const esriImagery = L.tileLayer(
+    //   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    //   { maxZoom: 17 }
+    // ).addTo(map);
+
+    const googleStreets = L.tileLayer(
+      'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
       {
-        maxZoom: 17,
-        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      }
+    );
+
+    const googleSat = L.tileLayer(
+      'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+      {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
       }
     ).addTo(map);
 
-    const topo = L.tileLayer(
-      'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    const googleHybrid = L.tileLayer(
+      'http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
       {
-        attribution:
-          'Map data © OpenStreetMap contributors, SRTM | Style © OpenTopoMap',
-        maxZoom: 17,
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
       }
-    ).addTo(map);
+    );
 
-    const esriImagery = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { attribution: 'Tiles © Esri', maxZoom: 18 }
-    ).addTo(map);
-
+    // Tambahkan ke layer control
     L.control
-      .layers({ OSM: base, Topografi: topo, Esri: esriImagery })
+      .layers({
+        // OSM: base,
+        // Topografi: topo,
+        // Esri: esriImagery,
+        'Google Satellite': googleSat,
+        'Google Streets': googleStreets,
+        'Google Hybrid': googleHybrid,
+      })
       .addTo(map);
 
     const group = L.featureGroup().addTo(map);
@@ -80,10 +113,20 @@ const MapView = forwardRef(function MapView(
     PLACES.forEach((p, idx) => {
       const m = L.marker([p.lat, p.lng], { title: p.name })
         .addTo(group)
-        .bindPopup(createPopupHTML(p), { maxWidth: 420 })
+        .bindPopup(createPopupHTML(p, idx), { maxWidth: 420 })
         .on('click', () => {
           map.flyTo([p.lat, p.lng], 15, { duration: 1.6 });
           setActiveIndex(idx);
+        })
+        .on('popupopen', () => {
+          if (p.panoramaUrl) {
+            pannellum.viewer(`pano-${idx}`, {
+              type: 'equirectangular',
+              panorama: p.panoramaUrl,
+              autoLoad: true,
+              compass: true,
+            });
+          }
         });
       markersRef.current.push(m);
     });
