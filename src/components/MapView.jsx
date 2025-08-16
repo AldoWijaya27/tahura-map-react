@@ -56,15 +56,16 @@ const MapView = forwardRef(function MapView(
       }
     ).addTo(map);
 
-    const dark = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    const topo = L.tileLayer(
+      'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
       {
-        maxZoom: 19,
-        attribution: '&copy; CartoDB',
+        attribution:
+          'Map data © OpenStreetMap contributors, SRTM | Style © OpenTopoMap',
+        maxZoom: 17,
       }
-    );
+    ).addTo(map);
 
-    L.control.layers({ OSM: base, Dark: dark }).addTo(map);
+    L.control.layers({ OSM: base, Topografi: topo }).addTo(map);
 
     const group = L.featureGroup().addTo(map);
     groupRef.current = group;

@@ -1,7 +1,11 @@
+@import 'tailwindcss';
+
 :root {
   color-scheme: light;
 }
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
 }
@@ -16,7 +20,9 @@ html, body, #root {
   cursor: pointer;
   font-weight: 600;
 }
-.btn:active { transform: translateY(1px); }
+.btn:active {
+  transform: translateY(1px);
+}
 .card {
   border: 1px solid #e5e7eb;
   border-radius: 16px;
@@ -32,8 +38,24 @@ html, body, #root {
   background: #f1f5f9;
   font-size: 0.75rem;
 }
-.small { color: #6b7280; font-size: 0.85rem; }
-.list { list-style: none; padding: 0; margin: 0; }
-.list li { padding: 8px 6px; border-radius: 12px; cursor: pointer; }
-.list li:hover { background: #f8fafc; }
-.footstep { font-size: 22px; line-height: 1; }
+.small {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.list li {
+  padding: 8px 6px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.list li:hover {
+  background: #f8fafc;
+}
+.footstep {
+  font-size: 22px;
+  line-height: 1;
+}
