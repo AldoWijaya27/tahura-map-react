@@ -68,7 +68,7 @@ const MapView = forwardRef(function MapView(
 
     // const esriImagery = L.tileLayer(
     //   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    //   { maxZoom: 17 }
+    //   { maxZoom: 17, attribution: '&copy; Esri' }
     // ).addTo(map);
 
     const googleStreets = L.tileLayer(
@@ -95,7 +95,6 @@ const MapView = forwardRef(function MapView(
       }
     );
 
-    // Tambahkan ke layer control
     L.control
       .layers({
         // OSM: base,

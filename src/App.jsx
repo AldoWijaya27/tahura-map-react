@@ -4,7 +4,7 @@ import Sidebar from './components/Sidebar.jsx';
 import { PLACES } from './data/places.js';
 
 export default function App() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(null);
   const tourRef = useRef(null);
   const tourInterval = useRef(null);
 
