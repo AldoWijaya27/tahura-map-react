@@ -12,21 +12,6 @@ export default function App() {
     return () => clearInterval(tourInterval.current);
   }, []);
 
-  const startTour = () => {
-    clearInterval(tourInterval.current);
-    let i = activeIndex;
-    setActiveIndex(i);
-    tourInterval.current = setInterval(() => {
-      i = (i + 1) % PLACES.length;
-      setActiveIndex(i);
-    }, 5500);
-  };
-
-  const stopTour = () => {
-    clearInterval(tourInterval.current);
-    tourInterval.current = null;
-  };
-
   return (
     <div
       style={{
@@ -38,17 +23,18 @@ export default function App() {
       <Sidebar
         activeIndex={activeIndex}
         setActiveIndex={(i) => {
-          stopTour();
           setActiveIndex(i);
         }}
-        onTourStart={startTour}
         onPrev={() =>
           setActiveIndex((activeIndex - 1 + PLACES.length) % PLACES.length)
         }
-        onNext={() => setActiveIndex((activeIndex + 1) % PLACES.length)}
+        onNext={() =>
+          setActiveIndex(
+            (activeIndex !== null ? activeIndex + 1 : 0) % PLACES.length
+          )
+        }
         onStopRoute={() => tourRef.current.stopRoute()}
         onReset={() => {
-          stopTour();
           tourRef.current.resetView();
           tourRef.current.stopRoute();
         }}

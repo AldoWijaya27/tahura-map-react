@@ -18,7 +18,6 @@ export const PLACES = [
     mediaUrl: 'https://www.youtube.com/embed/ysz5S6PUM-U',
     panoramaUrl: 'https://pannellum.org/images/cerro-toco-0.jpg',
   },
-
   {
     id: 'air-terjun-batu-lapis',
     name: 'Air Terjun Batu Lapis',

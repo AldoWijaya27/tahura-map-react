@@ -66,10 +66,10 @@ const MapView = forwardRef(function MapView(
     //   }
     // ).addTo(map);
 
-    // const esriImagery = L.tileLayer(
-    //   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    //   { maxZoom: 17, attribution: '&copy; Esri' }
-    // ).addTo(map);
+    const esriImagery = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 17, attribution: '&copy; Esri' }
+    ).addTo(map);
 
     const googleStreets = L.tileLayer(
       'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
@@ -99,7 +99,7 @@ const MapView = forwardRef(function MapView(
       .layers({
         // OSM: base,
         // Topografi: topo,
-        // Esri: esriImagery,
+        Esri: esriImagery,
         'Google Satellite': googleSat,
         'Google Streets': googleStreets,
         'Google Hybrid': googleHybrid,
@@ -114,7 +114,7 @@ const MapView = forwardRef(function MapView(
         .addTo(group)
         .bindPopup(createPopupHTML(p, idx), { maxWidth: 420 })
         .on('click', () => {
-          map.flyTo([p.lat, p.lng], 15, { duration: 1.6 });
+          map.flyTo([p.lat, p.lng], 16, { duration: 1.6 });
           setActiveIndex(idx);
         })
         .on('popupopen', () => {
@@ -156,7 +156,7 @@ const MapView = forwardRef(function MapView(
     const map = mapRef.current;
     const p = PLACES[activeIndex];
     if (map && p) {
-      map.flyTo([p.lat, p.lng], 15, { duration: 1.6 });
+      map.flyTo([p.lat, p.lng], 16, { duration: 1.6 });
     }
   }, [activeIndex]);
 
