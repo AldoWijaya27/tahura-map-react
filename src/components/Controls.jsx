@@ -1,4 +1,4 @@
-export default function Controls({ onPrev, onNext, onAnimateRoute, onReset }) {
+export default function Controls({ onPrev, onNext, onReset }) {
   return (
     <div>
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -17,9 +17,6 @@ export default function Controls({ onPrev, onNext, onAnimateRoute, onReset }) {
           flexWrap: 'wrap',
         }}
       >
-        <button className="btn" onClick={onAnimateRoute}>
-          🦶 Animasi Rute
-        </button>
         <button className="btn" onClick={onReset}>
           🗺️ Reset
         </button>

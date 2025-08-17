@@ -124,7 +124,11 @@ const MapView = forwardRef(function MapView(
               type: 'equirectangular',
               panorama: p.panoramaUrl,
               autoLoad: true,
-              compass: true,
+              // compass: true,
+              // minPitch: -30, // batas bawah
+              // maxPitch: 30, // batas atas
+              // minYaw: 0, // batas kiri
+              // maxYaw: 360,
             });
           }
         });
@@ -157,49 +161,6 @@ const MapView = forwardRef(function MapView(
     }
   }, [activeIndex]);
 
-  const animateRoute = () => {
-    const map = mapRef.current;
-    const coords = PLACES.map((p) => [p.lat, p.lng]);
-    routeRef.current.antPath = L.polyline
-      .antPath(coords, {
-        paused: false,
-        reverse: false,
-        delay: 800,
-        dashArray: [10, 20],
-        weight: 5,
-        opacity: 0.7,
-      })
-      .addTo(map);
-
-    const footIcon = L.divIcon({ className: 'footstep', html: '👣' });
-    routeRef.current.footstep = L.marker(coords[0], {
-      icon: footIcon,
-      interactive: false,
-    }).addTo(map);
-
-    let segIndex = 0,
-      t = 0;
-    const path = L.polyline(coords);
-    const total = path.getLatLngs();
-
-    const step = () => {
-      const seg = [total[segIndex], total[segIndex + 1]];
-      if (!seg[1]) return;
-      t += 0.01;
-      if (t >= 1) {
-        t = 0;
-        segIndex++;
-      }
-      const cur = L.latLng(
-        seg[0].lat + (seg[1].lat - seg[0].lat) * t,
-        seg[0].lng + (seg[1].lng - seg[0].lng) * t
-      );
-      routeRef.current.footstep.setLatLng(cur);
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  };
-
   const stopRoute = () => {
     const { antPath, footstep } = routeRef.current;
     if (antPath) mapRef.current.removeLayer(antPath);
@@ -214,9 +175,7 @@ const MapView = forwardRef(function MapView(
     }
   };
 
-  // expose controls to parent
   useImperativeHandle(tourControl, () => ({
-    animateRoute,
     stopRoute,
     resetView,
   }));

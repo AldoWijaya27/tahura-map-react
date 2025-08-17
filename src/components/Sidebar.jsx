@@ -6,7 +6,6 @@ export default function Sidebar({
   setActiveIndex,
   onPrev,
   onNext,
-  onAnimateRoute,
   onReset,
 }) {
   return (
@@ -22,12 +21,7 @@ export default function Sidebar({
         Peta Interaktif Wisata di kawasan Tahura Wan Abdul Rahma Lampung
       </div>
       <div className="card">
-        <Controls
-          onPrev={onPrev}
-          onNext={onNext}
-          onAnimateRoute={onAnimateRoute}
-          onReset={onReset}
-        />
+        <Controls onPrev={onPrev} onNext={onNext} onReset={onReset} />
       </div>
       <div className="mt-5">
         <span className="font-medium text-sm text-green-700">

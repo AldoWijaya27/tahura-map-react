@@ -37,6 +37,7 @@ export const PLACES = [
     desc: 'Air terjun tersembunyi dengan keindahan alam yang asri.',
     mediaType: 'video',
     mediaUrl: 'https://www.youtube.com/embed/DWRcNpR6Kdc',
+    panoramaUrl: '/images/talang-rabun-360.jpg',
   },
   {
     id: 'air-terjun-talang-mulya',
