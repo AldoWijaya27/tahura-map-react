@@ -1,0 +1,33 @@
+on:
+  push:
+    branches:
+      - main
+name: 🚀 Deploy website on push
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy website
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18' # Ganti versi Node.js sesuai kebutuhan Anda
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm install
+      # Build the website
+      - name: Build
+        run: npm run build
+      # Deploy only the contents of the 'build' folder
+      - name: 📂 Sync files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER_TAHURA }}
+          username: ${{ secrets.FTP_USER_TAHURA }}
+          password: ${{ secrets.FTP_PASS_TAHURA }}
+          local-dir: dist/ # Menentukan bahwa yang akan di-deploy adalah konten dari folder 'build'
