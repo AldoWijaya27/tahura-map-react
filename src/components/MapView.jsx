@@ -2,10 +2,12 @@ import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-ant-path';
+import 'leaflet-kmz';
 import { PLACES } from '../data/places.js';
 import 'pannellum/build/pannellum.js';
 import 'pannellum/build/pannellum.css';
 
+// Marker biru default
 const DefaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl:
@@ -16,8 +18,19 @@ const DefaultIcon = L.icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
-L.Marker.prototype.options.icon = DefaultIcon;
 
+// Marker merah aktif
+const ActiveIcon = L.icon({
+  iconUrl:
+    'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+// HTML popup
 function createPopupHTML(p, idx) {
   if (p.panoramaUrl) {
     return `<div style="width:320px;height:200px" id="pano-${idx}"></div>`;
@@ -52,20 +65,7 @@ const MapView = forwardRef(function MapView(
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // const base = L.tileLayer(
-    //   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    //   {
-    //     maxZoom: 17,
-    //   }
-    // ).addTo(map);
-
-    // const topo = L.tileLayer(
-    //   'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    //   {
-    //     maxZoom: 17,
-    //   }
-    // ).addTo(map);
-
+    // Base layers
     const esriImagery = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       { maxZoom: 17, attribution: '&copy; Esri' }
@@ -73,49 +73,44 @@ const MapView = forwardRef(function MapView(
 
     const googleStreets = L.tileLayer(
       'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-      {
-        maxZoom: 20,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      }
+      { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }
     );
 
     const googleSat = L.tileLayer(
       'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-      {
-        maxZoom: 20,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      }
+      { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }
     ).addTo(map);
 
     const googleHybrid = L.tileLayer(
       'http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
-      {
-        maxZoom: 20,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      }
+      { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }
     );
 
     L.control
-      .layers({
-        // OSM: base,
-        // Topografi: topo,
-        Esri: esriImagery,
-        'Google Satellite': googleSat,
-        'Google Streets': googleStreets,
-        'Google Hybrid': googleHybrid,
-      })
+      .layers(
+        {
+          Esri: esriImagery,
+          'Google Satellite': googleSat,
+          'Google Streets': googleStreets,
+          'Google Hybrid': googleHybrid,
+        },
+        {}
+      )
       .addTo(map);
 
     const group = L.featureGroup().addTo(map);
     groupRef.current = group;
 
+    // Tambahkan semua marker
     PLACES.forEach((p, idx) => {
-      const m = L.marker([p.lat, p.lng], { title: p.name })
+      const m = L.marker([p.lat, p.lng], {
+        title: p.name,
+        icon: DefaultIcon,
+      })
         .addTo(group)
         .bindPopup(createPopupHTML(p, idx), { maxWidth: 420 })
         .on('click', () => {
-          map.flyTo([p.lat, p.lng], 16, { duration: 1.6 });
-          setActiveIndex(idx);
+          setActiveIndex(idx); // update index aktif
         })
         .on('popupopen', () => {
           if (p.panoramaUrl) {
@@ -123,43 +118,55 @@ const MapView = forwardRef(function MapView(
               type: 'equirectangular',
               panorama: p.panoramaUrl,
               autoLoad: true,
-              // compass: true,
-              // minPitch: -30, // batas bawah
-              // maxPitch: 30, // batas atas
-              // minYaw: 0, // batas kiri
-              // maxYaw: 360,
             });
           }
         });
+
       markersRef.current.push(m);
     });
 
+    // KMZ loader
+    const kmz = L.kmzLayer().addTo(map);
+    kmz.on('load', (e) => {
+      console.log('KMZ loaded:', e);
+      map.fitBounds(e.layer.getBounds());
+    });
+    kmz.load('/PetaTahura.kmz');
+    kmz.load('/TrackTropongBintang.kmz');
+
     map.fitBounds(group.getBounds().pad(0.2));
 
-    const onMoveEnd = () => {
-      const p = PLACES[activeIndex];
-      if (!p) return;
-      const center = map.getCenter();
-      const d = map.distance(center, L.latLng(p.lat, p.lng));
-      if (d < 120) markersRef.current[activeIndex]?.openPopup();
-    };
-    map.on('moveend', onMoveEnd);
-
     return () => {
-      map.off('moveend', onMoveEnd);
       map.remove();
     };
-  }, []);
+  }, [setActiveIndex]);
 
-  // focus on active place
+  // Ganti warna marker sesuai activeIndex
   useEffect(() => {
     const map = mapRef.current;
+    if (!map) return;
+    if (activeIndex == null || activeIndex < 0) return;
+
     const p = PLACES[activeIndex];
-    if (map && p) {
-      map.flyTo([p.lat, p.lng], 16, { duration: 1.6 });
-    }
+    if (!p) return;
+
+    // Fokus ke marker aktif
+    map.flyTo([p.lat, p.lng], 16, { duration: 1.6 });
+
+    // Update semua marker
+    markersRef.current.forEach((m, idx) => {
+      if (!m) return;
+      if (idx === activeIndex) {
+        m.setIcon(ActiveIcon);
+        m.openPopup();
+      } else {
+        m.setIcon(DefaultIcon);
+        m.closePopup();
+      }
+    });
   }, [activeIndex]);
 
+  // ======== Exposed control (reset, stop route) ========
   const stopRoute = () => {
     const { antPath, footstep } = routeRef.current;
     if (antPath) mapRef.current.removeLayer(antPath);

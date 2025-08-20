@@ -20,14 +20,23 @@ export default function Sidebar({
       <div className="small">
         Peta Interaktif Wisata di kawasan Tahura Wan Abdul Rahma Lampung
       </div>
+
       <div className="card">
         <Controls onPrev={onPrev} onNext={onNext} onReset={onReset} />
       </div>
+
       <div className="mt-5">
         <span className="font-medium text-sm text-green-700">
           Daftar Lokasi
         </span>
-        <PlaceList activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+
+        {/* Daftar tempat */}
+        <PlaceList
+          activeIndex={activeIndex}
+          setActiveIndex={(i) => {
+            setActiveIndex(i); // update index aktif
+          }}
+        />
       </div>
     </aside>
   );

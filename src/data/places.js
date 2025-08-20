@@ -1,7 +1,7 @@
 export const PLACES = [
   {
     id: 'kantor-kph',
-    name: 'Kantor KPH Tahura',
+    name: 'Kantor UPTD KPHK Tahura Wan Abdul Rachman',
     lat: -5.419546452177751,
     lng: 105.1851258567996,
     desc: 'Pusat pengelolaan & layanan informasi Tahura Lampung.',
@@ -10,7 +10,7 @@ export const PLACES = [
   },
   {
     id: 'kandang-rusa',
-    name: 'Kandang Rusa',
+    name: 'Penangkaran Rusa',
     lat: -5.420067146850713,
     lng: 105.1857132631929,
     desc: 'Area penangkaran rusa — edukasi satwa & konservasi.',
@@ -30,7 +30,7 @@ export const PLACES = [
   },
   {
     id: 'air-terjun-talang-rabun',
-    name: 'Air Terjun Talang Rabun',
+    name: 'Air Terjun Stabil',
     lat: -5.495972898404943,
     lng: 105.16075731011065,
     desc: 'Air terjun tersembunyi dengan keindahan alam yang asri.',
