@@ -101,6 +101,8 @@ const MapView = forwardRef(function MapView(
     const group = L.featureGroup().addTo(map);
     groupRef.current = group;
 
+    markersRef.current = []; // <--- reset dulu
+
     // Tambahkan semua marker
     PLACES.forEach((p, idx) => {
       const m = L.marker([p.lat, p.lng], {
@@ -128,7 +130,6 @@ const MapView = forwardRef(function MapView(
     // KMZ loader
     const kmz = L.kmzLayer().addTo(map);
     kmz.on('load', (e) => {
-      console.log('KMZ loaded:', e);
       map.fitBounds(e.layer.getBounds());
     });
     kmz.load('/PetaTahura.kmz');
@@ -138,8 +139,9 @@ const MapView = forwardRef(function MapView(
 
     return () => {
       map.remove();
+      markersRef.current = [];
     };
-  }, [setActiveIndex]);
+  }, []);
 
   // Ganti warna marker sesuai activeIndex
   useEffect(() => {
@@ -158,10 +160,10 @@ const MapView = forwardRef(function MapView(
       if (!m) return;
       if (idx === activeIndex) {
         m.setIcon(ActiveIcon);
-        m.openPopup();
+        // m.openPopup();
       } else {
         m.setIcon(DefaultIcon);
-        m.closePopup();
+        // m.closePopup();
       }
     });
   }, [activeIndex]);
