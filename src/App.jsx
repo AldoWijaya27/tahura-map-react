@@ -37,6 +37,7 @@ export default function App() {
         onReset={() => {
           tourRef.current.resetView();
           tourRef.current.stopRoute();
+          setActiveIndex(null);
         }}
       />
       <MapView

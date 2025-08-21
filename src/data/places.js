@@ -20,8 +20,8 @@ export const PLACES = [
   {
     id: 'air-terjun-batu-lapis',
     name: 'Air Terjun Batu Lapis',
-    lat: -5.422695,
-    lng: 105.168767,
+    lat: -5.494977,
+    lng: 105.158106,
     desc: 'Air terjun indah dengan panorama alam yang menakjubkan.',
     mediaType: 'video',
     mediaUrl: 'https://www.youtube.com/embed/DWRcNpR6Kdc',
@@ -110,8 +110,8 @@ export const PLACES = [
             {
     id: 'cikudus',
     name: 'Air Terjun Cikudus',
-    lat: -5.464725,
-    lng:  105.190725,
+    lat: -5.452553,
+    lng:  105.164158,
     desc: 'Punggung Naga.',
     mediaType: 'img',
     mediaUrl: 'https://picsum.photos/seed/tamanhutan/800/500',
