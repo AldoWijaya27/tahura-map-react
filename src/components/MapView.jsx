@@ -99,7 +99,7 @@ const MapView = forwardRef(function MapView(
     const group = L.featureGroup().addTo(map);
     groupRef.current = group;
 
-    markersRef.current = []; // <--- reset dulu
+    markersRef.current = [];
 
     // Tambahkan semua marker
     PLACES.forEach((p, idx) => {
@@ -110,7 +110,7 @@ const MapView = forwardRef(function MapView(
         .addTo(group)
         .bindPopup(createPopupHTML(p, idx), { maxWidth: 420 })
         .on('click', () => {
-          setActiveIndex(idx); // update index aktif
+          setActiveIndex(idx);
         })
         .on('popupopen', () => {
           if (p.panoramaUrl) {
@@ -161,12 +161,17 @@ const MapView = forwardRef(function MapView(
     };
   }, []);
 
-  // Ganti warna marker sesuai activeIndex
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (activeIndex == null || activeIndex < 0) return;
-
+    if (activeIndex == null || activeIndex < 0) {
+      markersRef.current.forEach((m) => {
+        if (!m) return;
+        m.setIcon(DefaultIcon);
+        m.closePopup();
+      });
+      return;
+    }
     const p = PLACES[activeIndex];
     if (!p) return;
 
