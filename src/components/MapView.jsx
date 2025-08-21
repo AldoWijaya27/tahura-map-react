@@ -130,12 +130,32 @@ const MapView = forwardRef(function MapView(
     // KMZ loader
     const kmz = L.kmzLayer().addTo(map);
     kmz.on('load', (e) => {
-      map.fitBounds(e.layer.getBounds());
+      e.layer.eachLayer((layer) => {
+        layer.unbindPopup();
+        const defaultColor = layer.options.color || '#FFFFFF';
+
+        layer.on('click', () => {
+          e.layer.eachLayer((l) => {
+            const c = l.options.color || '#FFFFFF';
+            l.setStyle({
+              fillColor: '#FFFFFF',
+              fillOpacity: 0.1,
+              color: c,
+              weight: 2,
+            });
+          });
+
+          layer.setStyle({
+            fillColor: defaultColor,
+            fillOpacity: 0.02,
+            color: defaultColor,
+            weight: 3,
+          });
+        });
+      });
     });
     kmz.load('/PetaTahura.kmz');
-    kmz.load('/TrackTropongBintang.kmz');
-
-    map.fitBounds(group.getBounds().pad(0.2));
+    // kmz.load('/TrackTropongBintang.kmz');
 
     return () => {
       map.remove();
@@ -168,7 +188,6 @@ const MapView = forwardRef(function MapView(
     });
   }, [activeIndex]);
 
-  // ======== Exposed control (reset, stop route) ========
   const stopRoute = () => {
     const { antPath, footstep } = routeRef.current;
     if (antPath) mapRef.current.removeLayer(antPath);
