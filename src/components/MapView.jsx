@@ -4,8 +4,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-ant-path';
 import 'leaflet-kmz';
 import { PLACES } from '../data/places.js';
-import 'pannellum/build/pannellum.js';
-import 'pannellum/build/pannellum.css';
 
 // Marker biru default
 const DefaultIcon = L.icon({
@@ -32,9 +30,9 @@ const ActiveIcon = L.icon({
 
 // HTML popup
 function createPopupHTML(p, idx) {
-  if (p.panoramaUrl) {
-    return `<div style="width:320px;height:200px" id="pano-${idx}"></div>`;
-  }
+  // if (p.panoramaUrl) {
+  //   return `<div style="width:320px;height:200px" id="pano-${idx}"></div>`;
+  // }
   const media =
     p.mediaType === 'video'
       ? `<div style="width:280px;max-width:80vw"><iframe src="${p.mediaUrl}" allowfullscreen loading="lazy" style="width:100%;border:0;border-radius:12px;aspect-ratio:16/9"></iframe></div>`
@@ -180,10 +178,10 @@ const MapView = forwardRef(function MapView(
       if (!m) return;
       if (idx === activeIndex) {
         m.setIcon(ActiveIcon);
-        // m.openPopup();
+        m.openPopup();
       } else {
         m.setIcon(DefaultIcon);
-        // m.closePopup();
+        m.closePopup();
       }
     });
   }, [activeIndex]);
