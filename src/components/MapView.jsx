@@ -39,7 +39,6 @@ function createPopupHTML(p, idx) {
       : `<div style="width:280px;max-width:80vw"><img src="${p.mediaUrl}" alt="${p.name}" loading="lazy" style="width:100%;border-radius:12px"/></div>`;
   return `<div style="min-width:280px;max-width:360px">
     <h3 style="margin:.2rem 0">${p.name}</h3>
-    <div style="font-size:.9rem;color:#6b7280;margin-bottom:.5rem">${p.desc}</div>
     ${media}
   </div>`;
 }
