@@ -1,16 +1,16 @@
-import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-ant-path';
-import 'leaflet-kmz';
-import { PLACES } from '../data/places.js';
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-ant-path";
+import "leaflet-kmz";
+import { PLACES } from "../data/places.js";
 
 // Marker biru default
 const DefaultIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   iconRetinaUrl:
-    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -20,27 +20,76 @@ const DefaultIcon = L.icon({
 // Marker merah aktif
 const ActiveIcon = L.icon({
   iconUrl:
-    'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
 
-// HTML popup
 function createPopupHTML(p, idx) {
-  // if (p.panoramaUrl) {
-  //   return `<div style="width:320px;height:200px" id="pano-${idx}"></div>`;
-  // }
-  const media =
-    p.mediaType === 'video'
-      ? `<div style="width:280px;max-width:80vw"><iframe src="${p.mediaUrl}" allowfullscreen loading="lazy" style="width:100%;border:0;border-radius:12px;aspect-ratio:16/9"></iframe></div>`
-      : `<div style="width:280px;max-width:80vw"><img src="${p.mediaUrl}" alt="${p.name}" loading="lazy" style="width:100%;border-radius:12px"/></div>`;
-  return `<div style="min-width:280px;max-width:360px">
-    <h3 style="margin:.2rem 0">${p.name}</h3>
-    ${media}
-  </div>`;
+  // Video
+  const videoHTML = p.video
+    ? `<div style="width:100%;max-width:320px;margin:.5rem 0">
+         <iframe src="${p.video}" allowfullscreen loading="lazy"
+           style="width:100%;border:0;border-radius:12px;aspect-ratio:16/9"></iframe>
+       </div>`
+    : "";
+
+  // Images grid (3 kolom, square crop)
+  const imagesHTML = p.images
+    ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:320px;margin:.5rem 0">
+         ${p.images
+           .map(
+             (img, i) => `
+           <img src="${img}" 
+             alt="${p.name} ${i + 1}"
+             style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px;cursor:pointer"
+             onclick="openImagePopup('${img}')"
+           />
+         `
+           )
+           .join("")}
+       </div>`
+    : "";
+
+  return `
+    <div style="min-width:260px;max-width:360px">
+      <h3 style="margin:.2rem 0;font-size:1.1rem">${p.name}</h3>
+      ${videoHTML}
+      ${imagesHTML}
+    </div>
+  `;
+}
+
+// Tambahkan script global untuk popup fullscreen
+if (typeof window !== "undefined" && !window.__imagePopupInjected) {
+  window.__imagePopupInjected = true;
+  const style = document.createElement("style");
+  style.innerHTML = `
+    .image-popup-overlay {
+      position:fixed;inset:0;
+      background:rgba(0,0,0,0.9);
+      display:flex;align-items:center;justify-content:center;
+      z-index:99999;
+    }
+    .image-popup-overlay img {
+      max-width:90%;max-height:90%;
+      border-radius:12px;
+      box-shadow:0 0 20px rgba(0,0,0,0.5);
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.openImagePopup = function (src) {
+    const overlay = document.createElement("div");
+    overlay.className = "image-popup-overlay";
+    overlay.innerHTML = `<img src="${src}" />
+                         <div style="position:fixed;top:1rem;right:1rem;font-size:2rem;color:white;cursor:pointer">&times;</div>`;
+    overlay.onclick = () => document.body.removeChild(overlay);
+    document.body.appendChild(overlay);
+  };
 }
 
 const MapView = forwardRef(function MapView(
@@ -53,43 +102,43 @@ const MapView = forwardRef(function MapView(
   const routeRef = useRef({ antPath: null, footstep: null });
 
   useEffect(() => {
-    const map = L.map('map', {
+    const map = L.map("map", {
       zoomControl: false,
       scrollWheelZoom: true,
       worldCopyJump: true,
     }).setView([-5.435, 105.21], 12);
     mapRef.current = map;
 
-    L.control.zoom({ position: 'topright' }).addTo(map);
+    L.control.zoom({ position: "topright" }).addTo(map);
 
     // Base layers
     const esriImagery = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { maxZoom: 17, attribution: '&copy; Esri' }
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 17, attribution: "&copy; Esri" }
     ).addTo(map);
 
     const googleStreets = L.tileLayer(
-      'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-      { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }
+      "http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+      { maxZoom: 20, subdomains: ["mt0", "mt1", "mt2", "mt3"] }
     );
 
     const googleSat = L.tileLayer(
-      'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-      { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }
+      "http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+      { maxZoom: 20, subdomains: ["mt0", "mt1", "mt2", "mt3"] }
     ).addTo(map);
 
     const googleHybrid = L.tileLayer(
-      'http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
-      { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }
+      "http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}",
+      { maxZoom: 20, subdomains: ["mt0", "mt1", "mt2", "mt3"] }
     );
 
     L.control
       .layers(
         {
           Esri: esriImagery,
-          'Google Satellite': googleSat,
-          'Google Streets': googleStreets,
-          'Google Hybrid': googleHybrid,
+          "Google Satellite": googleSat,
+          "Google Streets": googleStreets,
+          "Google Hybrid": googleHybrid,
         },
         {}
       )
@@ -108,13 +157,13 @@ const MapView = forwardRef(function MapView(
       })
         .addTo(group)
         .bindPopup(createPopupHTML(p, idx), { maxWidth: 420 })
-        .on('click', () => {
+        .on("click", () => {
           setActiveIndex(idx);
         })
-        .on('popupopen', () => {
+        .on("popupopen", () => {
           if (p.panoramaUrl) {
             pannellum.viewer(`pano-${idx}`, {
-              type: 'equirectangular',
+              type: "equirectangular",
               panorama: p.panoramaUrl,
               autoLoad: true,
             });
@@ -126,16 +175,16 @@ const MapView = forwardRef(function MapView(
 
     // KMZ loader
     const kmz = L.kmzLayer().addTo(map);
-    kmz.on('load', (e) => {
+    kmz.on("load", (e) => {
       e.layer.eachLayer((layer) => {
         layer.unbindPopup();
-        const defaultColor = layer.options.color || '#FFFFFF';
+        const defaultColor = layer.options.color || "#FFFFFF";
 
-        layer.on('click', () => {
+        layer.on("click", () => {
           e.layer.eachLayer((l) => {
-            const c = l.options.color || '#FFFFFF';
+            const c = l.options.color || "#FFFFFF";
             l.setStyle({
-              fillColor: '#FFFFFF',
+              fillColor: "#FFFFFF",
               fillOpacity: 0.1,
               color: c,
               weight: 2,
@@ -151,7 +200,7 @@ const MapView = forwardRef(function MapView(
         });
       });
     });
-    kmz.load('/PetaTahura.kmz');
+    kmz.load("/PetaTahura.kmz");
     // kmz.load('/TrackTropongBintang.kmz');
 
     return () => {
@@ -209,7 +258,7 @@ const MapView = forwardRef(function MapView(
     resetView,
   }));
 
-  return <div id="map" style={{ width: '100%', height: '100%' }} />;
+  return <div id="map" style={{ width: "100%", height: "100%" }} />;
 });
 
 export default MapView;
